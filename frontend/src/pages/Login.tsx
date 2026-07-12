@@ -57,6 +57,9 @@ const Login: React.FC = () => {
     setErrorMsg('');
 
     try {
+      // Store sandbox role choice
+      localStorage.setItem('sandbox_role', selectedRole);
+
       // POST login
       const tokenResponse = await authService.login({ email, password });
       

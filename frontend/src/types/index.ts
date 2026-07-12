@@ -138,6 +138,10 @@ export interface TripUpdate {
   cargo_weight_kg?: number;
   planned_distance_km?: number;
   status?: TripStatus;
+  dispatched_at?: string | null;
+  completed_at?: string | null;
+  actual_distance_km?: number | null;
+  fuel_consumed_l?: number | null;
 }
 
 export interface TripCompleteRequest {
