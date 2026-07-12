@@ -5,6 +5,7 @@ import { authService } from '../api/services/authService';
 import ErrorAlert from '../components/ui/ErrorAlert';
 import FormField from '../components/ui/FormField';
 import type { UserRole } from '../types';
+import ThemeToggle from '../components/ui/ThemeToggle';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -101,7 +102,11 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-bg">
+    <div className="flex min-h-screen bg-bg relative">
+      {/* Absolute theme toggle on top-right */}
+      <div className="absolute top-4 right-4 z-20">
+        <ThemeToggle />
+      </div>
       {/* Left panel: Branding info */}
       <div className="hidden lg:flex lg:w-1/2 bg-panel border-r border-gray-800 p-12 flex-col justify-between relative overflow-hidden">
         {/* Subtle background glow */}
