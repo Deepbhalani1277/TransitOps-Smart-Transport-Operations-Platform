@@ -1,5 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import GuestRoute from './components/auth/GuestRoute';
+import AppShell from './components/layout/AppShell';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Vehicles from './pages/Vehicles';
@@ -10,96 +14,70 @@ import FuelExpense from './pages/FuelExpense';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
 
-type Page = 'Dashboard' | 'Vehicles' | 'Drivers' | 'Trips' | 'Maintenance' | 'FuelExpense' | 'Reports' | 'Settings';
-
-const AppContent: React.FC = () => {
-  // const { isAuthenticated, logout, user } = useAuth();
-  const [currentPage, setCurrentPage] = useState<Page>('Dashboard');
-  const [showLogin, setShowLogin] = useState(false); // Can toggle for display testing
-
-  const renderPage = () => {
-    switch (currentPage) {
-      case 'Dashboard': return <Dashboard />;
-      case 'Vehicles': return <Vehicles />;
-      case 'Drivers': return <Drivers />;
-      case 'Trips': return <Trips />;
-      case 'Maintenance': return <Maintenance />;
-      case 'FuelExpense': return <FuelExpense />;
-      case 'Reports': return <Reports />;
-      case 'Settings': return <Settings />;
-      default: return <Dashboard />;
-    }
-  };
-
-  if (showLogin) {
-    return (
-      <div className="min-h-screen bg-bg text-gray-200">
-        <div className="absolute top-4 right-4">
-          <button 
-            onClick={() => setShowLogin(false)}
-            className="text-xs text-accent hover:underline bg-panel border border-gray-800 px-3 py-1.5 rounded-md"
-          >
-            Show Dashboard App
-          </button>
-        </div>
-        <Login />
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex h-screen bg-bg text-gray-200 font-sans">
-      {/* Sidebar */}
-      <div className="w-64 bg-panel border-r border-gray-800 flex flex-col">
-        <div className="p-6 border-b border-gray-800">
-          <span className="text-xl font-bold text-accent tracking-wider">TransitOps</span>
-          <p className="text-xs text-gray-500 mt-1">Smart Transport Platform</p>
-        </div>
-        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-          {(['Dashboard', 'Vehicles', 'Drivers', 'Trips', 'Maintenance', 'FuelExpense', 'Reports', 'Settings'] as Page[]).map((page) => (
-            <button
-              key={page}
-              onClick={() => setCurrentPage(page)}
-              className={`w-full text-left px-4 py-2.5 rounded-md text-sm font-medium transition-colors ${
-                currentPage === page
-                  ? 'bg-accent/10 text-accent border-l-2 border-accent'
-                  : 'text-gray-400 hover:bg-gray-900 hover:text-gray-200'
-              }`}
-            >
-              {page.replace(/([A-Z])/g, ' $1').trim()}
-            </button>
-          ))}
-        </nav>
-        <div className="p-4 border-t border-gray-800 bg-gray-950/20">
-          <div className="flex items-center justify-between">
-            <div>
-              <span className="block text-xs font-semibold text-gray-400">Fleet Manager</span>
-              <span className="block text-[10px] text-gray-600">admin@transitops.com</span>
-            </div>
-            <button
-              onClick={() => setShowLogin(true)}
-              className="text-xs text-red-500 hover:text-red-400 hover:underline"
-            >
-              Sign Out
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto bg-bg">
-        {renderPage()}
-      </div>
-    </div>
-  );
-};
-
-function App() {
+const App: React.FC = () => {
   return (
     <AuthProvider>
-      <AppContent />
+      <BrowserRouter>
+        <Routes>
+          {/* Guest routes (Only accessible if NOT authenticated) */}
+          <Route element={<GuestRoute />}>
+            <Route path="/login" element={<Login />} />
+          </Route>
+
+          {/* Protected routes (Require authentication & optional role check) */}
+          <Route element={<AppShell />}>
+            {/* Dashboard available to all roles */}
+            <Route path="/dashboard" element={<Dashboard />} />
+
+            {/* Vehicles available to Fleet Manager, Dispatcher, Safety Officer */}
+            <Route
+              element={<ProtectedRoute allowedRoles={['Fleet Manager', 'Dispatcher', 'Safety Officer']} />}
+            >
+              <Route path="/vehicles" element={<Vehicles />} />
+            </Route>
+
+            {/* Drivers available to Fleet Manager, Dispatcher, Safety Officer */}
+            <Route
+              element={<ProtectedRoute allowedRoles={['Fleet Manager', 'Dispatcher', 'Safety Officer']} />}
+            >
+              <Route path="/drivers" element={<Drivers />} />
+            </Route>
+
+            {/* Trips available to Fleet Manager, Dispatcher */}
+            <Route
+              element={<ProtectedRoute allowedRoles={['Fleet Manager', 'Dispatcher']} />}
+            >
+              <Route path="/trips" element={<Trips />} />
+            </Route>
+
+            {/* Maintenance available to Fleet Manager, Safety Officer */}
+            <Route
+              element={<ProtectedRoute allowedRoles={['Fleet Manager', 'Safety Officer']} />}
+            >
+              <Route path="/maintenance" element={<Maintenance />} />
+            </Route>
+
+            {/* Fuel & Expense available to Fleet Manager, Financial Analyst */}
+            <Route
+              element={<ProtectedRoute allowedRoles={['Fleet Manager', 'Financial Analyst']} />}
+            >
+              <Route path="/fuel-expenses" element={<FuelExpense />} />
+            </Route>
+
+            {/* Reports available to all roles */}
+            <Route path="/reports" element={<Reports />} />
+
+            {/* Settings available to all roles */}
+            <Route path="/settings" element={<Settings />} />
+          </Route>
+
+          {/* Catch-all redirects */}
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </BrowserRouter>
     </AuthProvider>
   );
-}
+};
 
 export default App;
