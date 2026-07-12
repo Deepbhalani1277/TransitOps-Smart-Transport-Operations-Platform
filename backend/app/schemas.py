@@ -260,3 +260,8 @@ class AnalyticsReport(BaseModel):
     fleet_utilization_percent: float
     costliest_vehicles: list[VehicleCostRow]
     monthly_revenue_series: list[MonthlyRevenuePoint]
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: UserOut
+
