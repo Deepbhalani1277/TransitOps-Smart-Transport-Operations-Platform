@@ -197,3 +197,10 @@ class ExpenseOut(BaseModel):
     date: date
     class Config:
         from_attributes = True
+
+
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: UserOut
+
