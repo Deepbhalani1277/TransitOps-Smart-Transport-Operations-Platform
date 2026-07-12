@@ -142,42 +142,29 @@ def get_dashboard_kpis(
     db: Session = Depends(get_db),
     current_user=Depends(require_role(["Fleet Manager", "Dispatcher", "Safety Officer", "Financial Analyst"]))
 ):
-    # Standard fleet aggregates
+    # Calculate frontend expected metrics
     total_vehicles = db.query(Vehicle).count()
+    active_vehicles = db.query(Vehicle).filter(Vehicle.status == VehicleStatus.ON_TRIP).count()
+    available_vehicles = db.query(Vehicle).filter(Vehicle.status == VehicleStatus.AVAILABLE).count()
+    vehicles_in_maintenance = db.query(Vehicle).filter(Vehicle.status == VehicleStatus.IN_SHOP).count()
     active_trips = db.query(Trip).filter(Trip.status == TripStatus.DISPATCHED).count()
-    vehicles_in_shop = db.query(Vehicle).filter(Vehicle.status == VehicleStatus.IN_SHOP).count()
-    available_drivers = db.query(Driver).filter(Driver.status == DriverStatus.AVAILABLE).count()
+    pending_trips = db.query(Trip).filter(Trip.status == TripStatus.DRAFT).count()
     
-    total_odometer = db.query(func.sum(Vehicle.odometer)).scalar()
-    total_odometer_km = float(total_odometer) if total_odometer is not None else 0.0
+    # Drivers on duty: Available + On Trip
+    drivers_on_duty = db.query(Driver).filter(
+        (Driver.status == DriverStatus.AVAILABLE) | (Driver.status == DriverStatus.ON_TRIP)
+    ).count()
 
-    # Trips and revenue in current calendar month
-    today = date.today()
-    start_of_month = datetime(today.year, today.month, 1)
-    if today.month == 12:
-        end_of_month = datetime(today.year + 1, 1, 1) - timedelta(seconds=1)
-    else:
-        end_of_month = datetime(today.year, today.month + 1, 1) - timedelta(seconds=1)
-
-    completed_trips_query = db.query(Trip).filter(
-        Trip.status == TripStatus.COMPLETED,
-        Trip.completed_at >= start_of_month,
-        Trip.completed_at <= end_of_month
-    )
-    completed_trips = completed_trips_query.all()
-    completed_count = len(completed_trips)
-    
-    total_month_dist = sum(t.actual_distance_km or 0.0 for t in completed_trips)
-    monthly_revenue = total_month_dist * REVENUE_RATE_PER_KM
+    fleet_utilization = (active_vehicles / total_vehicles) * 100 if total_vehicles > 0 else 0.0
 
     return DashboardKPIs(
-        total_vehicles=total_vehicles,
-        active_trips=active_trips,
-        vehicles_in_shop=vehicles_in_shop,
-        available_drivers=available_drivers,
-        total_odometer_km=total_odometer_km,
-        completed_trips_this_month=completed_count,
-        monthly_revenue=monthly_revenue
+        activeVehicles=active_vehicles,
+        availableVehicles=available_vehicles,
+        vehiclesInMaintenance=vehicles_in_maintenance,
+        activeTrips=active_trips,
+        pendingTrips=pending_trips,
+        driversOnDuty=drivers_on_duty,
+        fleetUtilization=round(fleet_utilization, 2)
     )
 
 

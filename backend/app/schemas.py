@@ -232,13 +232,13 @@ class DriverPerformanceRow(BaseModel):
     trips_completed: int
 
 class DashboardKPIs(BaseModel):
-    total_vehicles: int
-    active_trips: int
-    vehicles_in_shop: int
-    available_drivers: int
-    total_odometer_km: float
-    completed_trips_this_month: int
-    monthly_revenue: float
+    activeVehicles: int
+    availableVehicles: int
+    vehiclesInMaintenance: int
+    activeTrips: int
+    pendingTrips: int
+    driversOnDuty: int
+    fleetUtilization: float
 
 class VehicleCostRow(BaseModel):
     vehicle_id: int
