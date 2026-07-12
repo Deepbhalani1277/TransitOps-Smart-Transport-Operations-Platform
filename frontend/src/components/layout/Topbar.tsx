@@ -1,5 +1,6 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
+import ThemeToggle from '../ui/ThemeToggle';
 
 const Topbar: React.FC = () => {
   const location = useLocation();
@@ -32,15 +33,16 @@ const Topbar: React.FC = () => {
       <div className="flex items-center gap-2">
         <span className="text-sm font-semibold text-gray-400">Operations</span>
         <span className="text-gray-600">/</span>
-        <span className="text-sm font-bold text-gray-250 text-gray-200">
+        <span className="text-sm font-bold text-gray-200">
           {getPageTitle(location.pathname)}
         </span>
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-4">
         <span className="inline-flex items-center rounded-md bg-green-500/10 px-2.5 py-1 text-xs font-semibold text-status-available border border-green-500/20">
           <span className="w-1.5 h-1.5 bg-status-available rounded-full mr-1.5 animate-pulse" />
           System Online
         </span>
+        <ThemeToggle />
       </div>
     </header>
   );
