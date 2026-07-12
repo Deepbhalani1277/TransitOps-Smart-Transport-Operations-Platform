@@ -197,3 +197,66 @@ class ExpenseOut(BaseModel):
     date: date
     class Config:
         from_attributes = True
+
+
+# ── Trip Completion ──────────────────────────────────────────────────
+class TripCompleteRequest(BaseModel):
+    actual_distance_km: float
+    fuel_consumed_l: float
+
+
+# ── Reports ──────────────────────────────────────────────────────────
+class FleetSummary(BaseModel):
+    total_vehicles: int
+    active_trips: int
+    vehicles_in_shop: int
+    total_odometer_km: float
+
+class CostBreakdown(BaseModel):
+    total_fuel_cost: float
+    total_maintenance_cost: float
+    total_expenses_cost: float
+    grand_total: float
+
+class FuelEfficiencyRow(BaseModel):
+    vehicle_id: int
+    reg_number: str
+    total_distance_km: float
+    total_fuel_liters: float
+    liters_per_100km: float
+
+class DriverPerformanceRow(BaseModel):
+    driver_id: int
+    name: str
+    safety_score: int
+    trips_completed: int
+
+class DashboardKPIs(BaseModel):
+    total_vehicles: int
+    active_trips: int
+    vehicles_in_shop: int
+    available_drivers: int
+    total_odometer_km: float
+    completed_trips_this_month: int
+    monthly_revenue: float
+
+class VehicleCostRow(BaseModel):
+    vehicle_id: int
+    reg_number: str
+    name: str
+    fuel_cost: float
+    maintenance_cost: float
+    expense_cost: float
+    total_cost: float
+    revenue: float
+    roi_percent: float
+
+class MonthlyRevenuePoint(BaseModel):
+    month: str       # "2026-07"
+    revenue: float
+    trips_completed: int
+
+class AnalyticsReport(BaseModel):
+    fleet_utilization_percent: float
+    costliest_vehicles: list[VehicleCostRow]
+    monthly_revenue_series: list[MonthlyRevenuePoint]
