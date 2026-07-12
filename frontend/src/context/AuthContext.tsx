@@ -4,7 +4,7 @@ import type { User } from '../types';
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  login: (token: string, user: User) => void;
+  login: (token: string, user: User, rememberMe: boolean) => void;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -16,17 +16,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
-    const savedToken = localStorage.getItem('token');
-    const savedUser = localStorage.getItem('user');
+    // Try localStorage first
+    let savedToken = localStorage.getItem('token');
+    let savedUser = localStorage.getItem('user');
+
+    // Fallback to sessionStorage
+    if (!savedToken) {
+      savedToken = sessionStorage.getItem('token');
+      savedUser = sessionStorage.getItem('user');
+    }
+
     if (savedToken && savedUser) {
       setToken(savedToken);
       setUser(JSON.parse(savedUser));
     }
   }, []);
 
-  const login = (newToken: string, newUser: User) => {
-    localStorage.setItem('token', newToken);
-    localStorage.setItem('user', JSON.stringify(newUser));
+  const login = (newToken: string, newUser: User, rememberMe: boolean) => {
+    if (rememberMe) {
+      localStorage.setItem('token', newToken);
+      localStorage.setItem('user', JSON.stringify(newUser));
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('user');
+    } else {
+      sessionStorage.setItem('token', newToken);
+      sessionStorage.setItem('user', JSON.stringify(newUser));
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    }
     setToken(newToken);
     setUser(newUser);
   };
@@ -34,6 +51,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
     setToken(null);
     setUser(null);
   };
