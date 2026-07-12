@@ -1,4 +1,13 @@
 /** @type {import('tailwindcss').Config} */
+function withOpacity(variableName) {
+  return ({ opacityValue }) => {
+    if (opacityValue !== undefined) {
+      return `rgba(var(${variableName}), ${opacityValue})`;
+    }
+    return `rgb(var(${variableName}))`;
+  };
+}
+
 export default {
   darkMode: 'class',
   content: [
@@ -8,21 +17,21 @@ export default {
   theme: {
     extend: {
       colors: {
-        bg: "var(--bg-color)",
-        panel: "var(--panel-color)",
-        accent: "var(--accent-color)",
+        bg: withOpacity('--bg-color'),
+        panel: withOpacity('--panel-color'),
+        accent: withOpacity('--accent-color'),
         gray: {
-          50: "var(--gray-50)",
-          100: "var(--gray-100)",
-          200: "var(--gray-200)",
-          300: "var(--gray-300)",
-          400: "var(--gray-400)",
-          500: "var(--gray-500)",
-          600: "var(--gray-600)",
-          700: "var(--gray-700)",
-          800: "var(--gray-800)",
-          900: "var(--gray-900)",
-          950: "var(--gray-950)",
+          50: withOpacity('--gray-50'),
+          100: withOpacity('--gray-100'),
+          200: withOpacity('--gray-200'),
+          300: withOpacity('--gray-300'),
+          400: withOpacity('--gray-400'),
+          500: withOpacity('--gray-500'),
+          600: withOpacity('--gray-600'),
+          700: withOpacity('--gray-700'),
+          800: withOpacity('--gray-800'),
+          900: withOpacity('--gray-900'),
+          950: withOpacity('--gray-950'),
         },
         status: {
           available: "#22c55e",
